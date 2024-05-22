@@ -1,6 +1,8 @@
 package IndianBank.customerdetails;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,24 +19,28 @@ public class accountcontroller
     @Autowired
     accountservice service;
 
+    //accountcreate
     @PostMapping("/accountcreate")
     public String accountcreate(@RequestBody accountentity accountdetails)
     {
         return service.creation(accountdetails).getAccountHoldername()+" has been created successfully...!";
     }
 
+    //listalldetails
     @GetMapping("/listalldetails")
     public List<accountentity> allaccountvalues()
     {
         return service.allaccountlist();
     }
 
+    //findaccount
     @GetMapping("/findaccount/{accno}")
     public accountentity getaccountdetails(@PathVariable("accno") Long accno)
     {
         return service.findbyaccount(accno) ;
     }
 
+    //updateaccountdetails
     @PutMapping("/updateaccountdetails")
     public String updateaccount(@RequestBody accountentity accountdetails)
     {
@@ -42,15 +48,82 @@ public class accountcontroller
         return acc.getAccountnumber() +" your account has been updated successfully..!";
     }
 
+    //deletebyid
     @DeleteMapping("/deletebyid/{account}")
     public String  deleteaccount(@PathVariable("account")long account)
     {
         return service.deletebyaccount(account);
     }
 
+    //findbyplace
     @GetMapping("/findbyplace/{place}")
     public List<accountentity> findbyplace(@PathVariable("place")String place)
     {
         return service.getvaluebyplace(place);
+    }
+
+
+    @Autowired
+    transactionservice tservice;
+
+    //Create transaction
+    @PostMapping("/createtransaction")
+    public transactionEntity transactioncreate(@RequestBody transactionEntity transdetails)
+    {
+        transdetails.setCurrentBalance(transdetails.getAccount().getAccountBalance());
+
+        if(transdetails.getTransactionType().equalsIgnoreCase("credit"))
+        {
+            transdetails.setCurrentBalance(transdetails.getCurrentBalance().add(transdetails.getTransactionAmount()));
+
+            BigDecimal currentbalance = transdetails.getCurrentBalance();
+
+            accountentity acc = service.findbyaccount(transdetails.getAccount().getAccountnumber());
+
+            acc.setAccountBalance(currentbalance);
+        }
+        else if (transdetails.getTransactionType().equalsIgnoreCase("debit")) 
+        {
+            if (transdetails.getAccount().getAccountBalance().compareTo(transdetails.getTransactionAmount())>0) 
+            {
+                transdetails.setCurrentBalance(transdetails.getCurrentBalance().subtract(transdetails.getTransactionAmount()));
+
+                BigDecimal currentbalance = transdetails.getCurrentBalance();
+
+                accountentity acc = service.findbyaccount(transdetails.getAccount().getAccountnumber());
+    
+                acc.setAccountBalance(currentbalance); 
+            }      
+        }
+        return tservice.createtransaction(transdetails);
+    }
+
+    //List alltransaction
+    @GetMapping("/getalltransaction")
+    public List<transactionEntity> listalltransaction()
+    {
+        return tservice.listtransaction();
+    }
+
+    //getbytransaction Id
+    @GetMapping("/transactionbyid/{transnum}")
+    public Optional<transactionEntity> findbytransid(@PathVariable long transnum)
+    {
+        return tservice.findonetransaction(transnum);
+    }
+
+    //Delete transaction
+    @DeleteMapping("/deletetransactionbyid/{id}")
+    public void deletetransactionid(@PathVariable long id )
+    {
+        tservice.deleteTransaction(id);
+    }
+
+    //gettransactionfromoneaccount
+    @GetMapping("/gettransactionfromoneaccount/{id}")
+    public List<transactionEntity> gettrans(@PathVariable long id)
+    {
+        accountentity acc = service.findbyaccount(id);
+        return tservice.gettransactionfromoneuser(acc);
     }
 }
