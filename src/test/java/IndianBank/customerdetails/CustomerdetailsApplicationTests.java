@@ -54,7 +54,7 @@ class CustomerdetailsApplicationTests
 	{
 		account = new accountentity();
 		account.setAccountHoldername("Praveen");
-		account.setAccountnumber(7654323456l);
+		account.setAccountNumber(7654323456l);
 		account.setAccountHoldercontactno(6379873794l);
 		account.setAccountIfsccode("IDIB00897");
 		account.setAccountHolderplace("Rasipuram");
@@ -74,9 +74,9 @@ class CustomerdetailsApplicationTests
 
 		accountentity acc = service.creation(account);
 
-		assertNotNull(acc);
+		// assertNotNull(acc);
 
-		// assertNotEquals(account, acc);
+		assertNotEquals(account, acc);
 
 		// assertEquals(BigDecimal.valueOf(20000.00), acc.getAccountBalance());
 	}
@@ -87,14 +87,11 @@ class CustomerdetailsApplicationTests
 	// 	List<transactionEntity> trans = Arrays.asList(transaction1,transaction2);
 
 	// 	when(trepo.findAllByAccount(account)).thenReturn(trans);
-
-		
-
 	// 	List<transactionEntity> process = tservice.gettransactionfromoneuser(account);
 		
-	// 	// assertNotNull(process);
+	// 	assertNotNull(process);
 
-	// 	assertEquals(5, process.size());
+	// 	// assertEquals(5, process.size());
 
 	// 	// assertEquals(trans, process);
 

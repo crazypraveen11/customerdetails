@@ -5,24 +5,35 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("indianbank")
 public class accountcontroller 
 {
     @Autowired
     accountservice service;
 
+
+    public PasswordEncoder encoder()
+    {
+        return new BCryptPasswordEncoder();
+    }
+
     //accountcreate
     @PostMapping("/accountcreate")
     public String accountcreate(@RequestBody accountentity accountdetails)
     {
+        accountdetails.setPassword(encoder().encode(accountdetails.getPassword()));
         return service.creation(accountdetails).getAccountHoldername()+" has been created successfully...!";
     }
 
@@ -45,7 +56,7 @@ public class accountcontroller
     public String updateaccount(@RequestBody accountentity accountdetails)
     {
         accountentity acc = service.creation(accountdetails);
-        return acc.getAccountnumber() +" your account has been updated successfully..!";
+        return acc.getAccountNumber() +" your account has been updated successfully..!";
     }
 
     //deletebyid
@@ -78,7 +89,7 @@ public class accountcontroller
 
             BigDecimal currentbalance = transdetails.getCurrentBalance();
 
-            accountentity acc = service.findbyaccount(transdetails.getAccount().getAccountnumber());
+            accountentity acc = service.findbyaccount(transdetails.getAccount().getAccountNumber());
 
             acc.setAccountBalance(currentbalance);
         }
@@ -90,7 +101,7 @@ public class accountcontroller
 
                 BigDecimal currentbalance = transdetails.getCurrentBalance();
 
-                accountentity acc = service.findbyaccount(transdetails.getAccount().getAccountnumber());
+                accountentity acc = service.findbyaccount(transdetails.getAccount().getAccountNumber());
     
                 acc.setAccountBalance(currentbalance); 
             }      
